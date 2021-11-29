@@ -1,0 +1,217 @@
+package Graficos;
+
+import static Graficos.Configuracion.manager;
+import DAOMYSQL.DAOManagerJDBC;
+import java.awt.BorderLayout;
+import java.awt.Component;
+import java.awt.Container;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.beans.PropertyChangeListener;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.Vector;
+import javax.swing.Action;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableCellRenderer;
+import com.sun.jdi.connect.spi.Connection;
+import DAO.DAOException;
+import DAO.DAOManager;
+import DAO.Pais;
+import DAO.PaisDAO;
+import DAOMYSQL.DAOManagerJDBC;
+import DAOMYSQL.PaisDAOJDBC;
+
+public class PaisFrame {
+	private JFrame frame4 = new JFrame("Gestor de Olimpiadas - PAIS");
+	private JPanel panel4 = new JPanel();
+	private JButton nue = new JButton("+ NUEVO");
+	private JButton vol = new JButton("VOLVER");
+	private JTable tabla = new JTable();
+	private String[] titulos = {"NUMERO", "PAIS","EDITAR","ELIMINAR"};
+	private Object[][] datos;
+	private JLabel title4 = new JLabel("Paises");
+	private static JButton boton;
+	
+	private Action editar = new Action() {
+		public void actionPerformed(ActionEvent e) {
+			JTable tablet = (JTable)e.getSource();
+			int fila = tablet.getSelectedRow();
+			//"editar DAO"(tablet.getValueAt(fila, 3));
+		}
+		public Object getValue(String key) {
+			return null;
+		}
+
+		public void putValue(String key, Object value) {			
+		}
+
+		public void setEnabled(boolean b) {			
+		}
+
+		public boolean isEnabled() {
+			return false;
+		}
+
+		public void addPropertyChangeListener(PropertyChangeListener listener) {
+		}
+
+		public void removePropertyChangeListener(PropertyChangeListener listener) {
+		}};
+	
+	private Action eliminar = new Action() {
+		public void actionPerformed(ActionEvent e) {
+			try {
+                Statement st = DAOManagerJDBC.getConnection().createStatement();
+                JTable table = (JTable)e.getSource();
+                int row = table.getSelectedRow();
+                manager.getPaisDAO().eliminar(Integer.parseInt(table.getValueAt(row, 0).toString()), table.getValueAt(row, 2).toString());
+            } catch (SQLException | NumberFormatException | DAOException e1) {
+                e1.printStackTrace();
+            }
+        };
+
+		public Object getValue(String key) {
+			return null;
+		}
+
+		public void putValue(String key, Object value) {			
+		}
+
+		public void setEnabled(boolean b) {	
+		}
+
+		public boolean isEnabled() {
+			return false;
+		}
+
+		public void addPropertyChangeListener(PropertyChangeListener listener) {
+		}
+
+		public void removePropertyChangeListener(PropertyChangeListener listener) {		
+		}};
+	public Component getTableCellRendererComponent (JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+		JButton boton = new JButton();
+		boton.setText(value.toString());
+		return boton;
+	}
+	
+	PaisFrame()  {
+		
+		Container contenedor4 = frame4.getContentPane();
+		contenedor4.setLayout(new BorderLayout(600,600));
+		
+		panel4.setBounds(5,5,180,800);
+		frame4.setSize(500,500);
+		panel4.setLayout(null);
+		nue.setBounds(100, 51, 120, 30);
+		vol.setBounds(250, 51, 120, 30);
+		
+		title4.setBounds(230,80,100,100);
+		
+		ActionListener back = new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				frame4.setVisible(false);
+				GestorDeOlimpiadas con = new GestorDeOlimpiadas();
+	        	};
+		};
+		
+		vol.addActionListener(back);
+		
+		ActionListener nuev = new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				frame4.setVisible(false);
+				NuevoPais con = new NuevoPais();
+	        	};
+		};
+		
+		nue.addActionListener(nuev);
+		
+		DefaultTableModel modelo = new DefaultTableModel();
+		tabla.setModel(modelo);
+		try {
+            Statement st = DAOManagerJDBC.getConnection().createStatement();
+            tabla.setModel(modelo);
+            String SQL= "SELECT * FROM pais";
+            ResultSet rs =   st.executeQuery(SQL);
+            tabla.setModel(modelo);
+            String v = null;
+            while(rs.next()) {
+             v = (String.valueOf(rs.getInt(1)) + "," +rs.getString(2) + "," + "EDITAR" + "," + "ELIMINAR" + "-" + v );
+            }
+            Object[][] tabla2;
+            if (v != null) {
+                String[] separados= v.split("-");
+                tabla2 = new Object[separados.length-1][];
+                for (int i=0;i<separados.length-1;i++) {
+                    tabla2[i]= separados[i].split(",");
+                }
+            }
+                else {
+                	tabla2 = null;
+                }
+            datos = tabla2;
+        } 
+		catch(SQLException e) {
+        }
+		tabla.setModel(new DefaultTableModel(datos, titulos) { 
+            Class<?>[] COLUMN_TYPES = {String.class, String.class, String.class, JButton.class, JButton.class};
+            public boolean isCellEditable(int row, int column) {
+                return false;  
+            }
+            public Class<?> getColumnClass(int columnIndex) {
+                return COLUMN_TYPES[columnIndex];
+            }
+	        });    		
+        tabla.setBounds(25,150,450,450);
+        tabla.getTableHeader().setReorderingAllowed(false); 
+        
+        TableCellRenderer render = new TableCellRenderer(){
+					public Component getTableCellRendererComponent (JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+						boton = new JButton(value.toString());
+						return boton;
+					}	
+        };
+        
+        tabla.getColumnModel().getColumn(3).setCellRenderer(render);
+        tabla.getColumnModel().getColumn(2).setCellRenderer(render);
+        
+        tabla.setTableHeader(null);
+        JScrollPane scrol = new JScrollPane(tabla);
+        scrol.setBounds(25,150,450,450);
+        
+        ActionListener elim = new ActionListener() {
+        	public void actionPerformed(ActionEvent e) {	
+	        	};
+        };
+        
+        ActionListener edi = new ActionListener() {
+        	public void actionPerformed(ActionEvent e) {		
+	        	};
+        };
+        
+		panel4.add(nue);
+		panel4.add(vol);
+		panel4.add(scrol);
+		panel4.add(title4);
+		
+		contenedor4.add(panel4);
+		frame4.setVisible(true);
+	}
+	
+	public static void main(String[] args){
+		PaisFrame app4 = new PaisFrame();	
+	}
+}
