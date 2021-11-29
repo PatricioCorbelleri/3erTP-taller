@@ -1,0 +1,287 @@
+package Graficos;
+
+import java.awt.*;
+import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+import com.mysql.cj.jdbc.ClientPreparedStatement;
+import com.sun.jdi.connect.spi.Connection;
+import static Graficos.Configuracion.manager;
+import DAO.DAOException;
+import DAO.DAOManager;
+import DAO.Deportista;
+import DAOMYSQL.DAOManagerJDBC;
+import DAO.DeportistaDAO;
+import DAOMYSQL.DeportistaDAOJDBC;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+import javax.swing.border.EmptyBorder;
+import javax.swing.JButton;
+import javax.swing.JRadioButton;
+import javax.swing.JToggleButton;
+import javax.swing.JTextArea;
+import javax.swing.JTable;
+import javax.swing.JMenuBar;
+import javax.swing.JMenu;
+import javax.swing.SwingConstants;
+import javax.swing.JProgressBar;
+import javax.swing.JSpinner;
+import javax.swing.SpinnerNumberModel;
+import javax.swing.JTree;
+import javax.swing.JLabel;
+import javax.swing.JTextField;
+import javax.swing.JComboBox;
+import javax.swing.JCheckBox;
+import javax.swing.JFormattedTextField;
+import javax.swing.JPasswordField;
+import javax.swing.JEditorPane;
+import javax.swing.JList;
+import javax.swing.JScrollBar;
+import javax.swing.JSeparator;
+import javax.swing.JSlider;
+import javax.swing.JMenuItem;
+import java.awt.Canvas;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import javax.swing.JToolBar;
+import javax.swing.JScrollPane;
+import javax.swing.JDesktopPane;
+import javax.swing.JTabbedPane;
+import javax.swing.JInternalFrame;
+import javax.swing.JTextPane;
+import javax.swing.ImageIcon;
+import java.sql.*;
+import java.text.ParseException;
+import java.io.IOException;
+import java.util.Scanner;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+public class NuevoDeportista {
+	private JFrame frame5 = new JFrame("Gestor de Olimpiadas - NUEVO DEPORTISTA");
+	private JPanel panel5 = new JPanel();
+	private JButton guardar = new JButton("GUARDAR");
+	private JButton volver = new JButton("VOLVER");
+	private JFormattedTextField apellido = new JFormattedTextField("APELLIDO:");
+	private JFormattedTextField nombre = new JFormattedTextField("NOMBRE:");
+	private JFormattedTextField email = new JFormattedTextField("EMAIL:");
+	private JFormattedTextField telefono = new JFormattedTextField("TELEFONO:");
+	private JFormattedTextField pais = new JFormattedTextField("PAIS:");
+	private JFormattedTextField disciplina = new JFormattedTextField("DISCIPLINA:");
+	private JFormattedTextField texto1 = new JFormattedTextField();
+	private JFormattedTextField texto2 = new JFormattedTextField();
+	private JFormattedTextField texto3 = new JFormattedTextField();
+	private JFormattedTextField texto4 = new JFormattedTextField();
+	private JComboBox desple1 = new JComboBox();
+	private JComboBox desple2 = new JComboBox();
+	private JLabel fondo5 = new JLabel();
+	private JTextField tex = new JTextField ();
+	private Deportista d = new Deportista();
+	
+	NuevoDeportista() {	
+		frame5.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		Container contenedor5 = frame5.getContentPane();
+		contenedor5.setLayout(new BorderLayout(500,500));
+		frame5.setBounds(300, 150, 500, 500);
+		frame5.setSize(515,540);
+		setContentPane(panel5);
+		panel5.setLayout(null);
+		panel5.setSize(550, 550);
+		
+		fondo5.setBounds(0, 0, 500, 500);
+		ImageIcon fond = new ImageIcon(getClass().getResource("/Imagenes/001.png"));
+		fondo5.setIcon(fond);
+		
+		texto1.setBounds(230, 90, 200, 20);
+		texto2.setBounds(230, 125, 200, 20);
+		texto3.setBounds(230, 165, 200, 20);
+		texto4.setBounds(230, 200, 200, 20);
+		desple1.setBounds(230, 240, 200, 20);
+		desple2.setBounds(230, 280, 200, 20);
+		
+		guardar.setBounds(150, 360, 120, 30);
+		volver.setBounds(300, 360, 120, 30);
+		
+		ActionListener vuelve = new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				frame5.setVisible(false);
+				DeportistaFrame con = new DeportistaFrame();
+	        	};
+		};
+		
+		volver.addActionListener(vuelve);
+		
+		addItemsBX1(desple1);
+        addItemsBX(desple2);
+		
+		ActionListener save = new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                boolean cont = true;
+                d = new Deportista();        
+                d.setApellido(texto1.getText());
+                if(!soloLetra(d.getApellido())) {
+                    Alerta apellido = new Alerta("Solo debe contener letras");
+                    cont = false;
+                }
+                if(d.getApellido().isEmpty() || d.getApellido().isBlank() ) {
+                    Alerta apellido = new Alerta("Campo Obligatorio, Ingrese el apellido");
+                    cont = false;
+                }
+                
+                d.setNombre(texto2.getText());
+                if(!soloLetra(d.getNombre())) {
+                    Alerta nombre = new Alerta("Solo debe contener letras");
+                    cont = false;
+                }
+                if(d.getNombre().isEmpty() || d.getNombre().isBlank()) {
+                    Alerta nombre = new Alerta("Campo Obligatorio, Ingrese el nombre");
+                    cont = false;
+                }
+                
+                d.setEmail(texto3.getText());
+                if(!(d.getEmail().contains("@"))) {
+                    Alerta email = new Alerta("el mail no contienen @");
+                    cont = false;
+                }
+                if(d.getEmail().isEmpty() || d.getEmail().isBlank()) {
+                    Alerta email = new Alerta("Campo Obligatorio, Ingrese el mail");
+                    cont = false;
+                }
+                
+                d.setTelefono(texto4.getText());
+                if(!soloNumero(texto4.getText())) {
+                    Alerta telefono = new Alerta("solo pueden ser numeros");
+                    cont = false;
+                }
+                if(d.getEmail().isEmpty() || d.getEmail().isBlank()) {
+                    Alerta telefono = new Alerta("Campo Obligatorio, Ingrese el telefono");
+                    cont = false;
+                }
+                
+                d.setDisciplina(desple2.getSelectedItem().toString());
+                if( !(desple2.getSelectedItem().toString().isEmpty() || desple2.getSelectedItem().toString().isBlank() ) ) {
+                    d.setPais(desple2.getSelectedItem().toString());
+                }
+                else {
+                    Alerta disciplina = new Alerta("Elija una disciplina");
+                    cont = false;
+                }
+                
+                d.setPais(desple1.getSelectedItem().toString());
+                if( !(desple1.getSelectedItem().toString().isEmpty() || desple1.getSelectedItem().toString().isBlank() ) ) {
+                    d.setPais(desple2.getSelectedItem().toString());
+                }
+                else {
+                    Alerta pais = new Alerta("Elija un Pais");
+                    cont = false;
+                }
+                
+                if(cont == true) {
+                    guardarActionPerformed(e);
+                }
+            };
+        };
+        
+        guardar.addActionListener(save);
+		
+		apellido.setBounds(150, 90, 70, 20);
+		apellido.setEditable(false);
+		nombre.setBounds(150, 125, 70, 20);
+		nombre.setEditable(false);
+		email.setBounds(150, 165, 50, 20);
+		email.setEditable(false);
+		telefono.setBounds(150, 200, 75, 20);
+		telefono.setEditable(false);
+		pais.setBounds(150, 240, 40, 20);
+		pais.setEditable(false);
+		disciplina.setBounds(150, 280, 75, 20);
+		disciplina.setEditable(false);
+		
+		panel5.add(texto1);
+		panel5.add(texto2);
+		panel5.add(texto3);
+		panel5.add(texto4);
+		panel5.add(desple1);
+		panel5.add(desple2);
+		panel5.add(guardar);
+		panel5.add(nombre);
+		panel5.add(apellido);
+		panel5.add(email);
+		panel5.add(telefono);
+		panel5.add(pais);
+		panel5.add(disciplina);
+		panel5.add(volver);
+		panel5.add(fondo5);
+		
+		contenedor5.add(panel5);
+		frame5.setVisible(true);
+	}
+	
+	private void setContentPane(JPanel panel52) {
+	}
+
+	@SuppressWarnings("unchecked")
+	public static void addItemsBX(JComboBox desple2) {
+        try {     	
+            Statement sent =DAOManagerJDBC.getConnection().createStatement();
+            ResultSet Datos = sent.executeQuery("SELECT * FROM tokyo2021_e3.disciplina");
+            while(Datos.next()) {
+            	desple2.addItem(Datos.getString("nombre"));
+            }
+            sent.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+    
+	public static void addItemsBX1(JComboBox desple1) {
+        try {       	
+            Statement sent =DAOManagerJDBC.getConnection().createStatement();
+            ResultSet Datos = sent.executeQuery("SELECT * FROM pais");
+            while(Datos.next()) {
+            	desple1.addItem(Datos.getString("nombre"));
+            }
+            sent.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+	
+	public static boolean soloLetra(String cadena) {
+        for (int i = 0; i < cadena.length(); i++) {
+            char c = cadena.charAt(i);
+            if (!((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c == ' ')) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public static boolean soloNumero(String cadena) {
+        for (int i = 0; i < cadena.length(); i++) {
+            if (!Character.isDigit(cadena.charAt(i))) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+	private void guardarActionPerformed(java.awt.event.ActionEvent evt)  {
+		 try {
+			 Deportista d = new Deportista();
+			 d.setNombre(texto1.getText());
+			 d.setApellido(texto2.getText());
+			 d.setEmail(texto3.getText());
+			 d.setTelefono( texto4.getText());
+			 d.setPais(desple1.getSelectedItem().toString());
+			 d.setDisciplina(desple2.getSelectedItem().toString());
+			 manager.getDeportistaDAO().ingresar(d);
+		} catch (DAOException e) {
+			System.out.println("No se pudo ingresar el deportista");
+			e.printStackTrace();
+		}			
+		}
+		 
+	public static void main(String[] args) throws SQLException{
+		NuevoDeportista app5 = new NuevoDeportista();	
+     }
+}
