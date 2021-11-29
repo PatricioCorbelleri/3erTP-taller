@@ -1,0 +1,105 @@
+package Graficos;
+
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.sql.SQLException;
+import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+import com.sun.jdi.connect.spi.Connection;
+import DAOMYSQL.DAOManagerJDBC;
+
+public class Configuracion extends JFrame  {
+	public static DAOManagerJDBC manager;	
+	private JFrame frame2 = new JFrame("Gestor de Olimpiadas - CONFIGURACION");
+	private JPanel panel2 = new JPanel();
+	private JButton vol = new JButton("VOLVER");
+	private JButton conectar = new JButton("CONECTAR");
+	private JPasswordField contaseña = new JPasswordField();
+	private JFormattedTextField usuario = new JFormattedTextField();
+	private JFormattedTextField texto1 = new JFormattedTextField();
+	private JFormattedTextField texto2 = new JFormattedTextField();
+	private JLabel fondo2 = new JLabel();
+	private JLabel mensaje = new JLabel();
+	
+	Configuracion(){
+		
+		frame2.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setBounds(10, 10, 632, 385);
+		Container contenedor2 = frame2.getContentPane();
+		this.setSize(new Dimension(500, 500));
+		setContentPane(panel2);
+		panel2.setLayout(null);	
+		frame2.setSize(500,500);
+		panel2.setSize(500, 500);
+		
+		fondo2.setBounds(0, 0, 500, 500);
+		ImageIcon fond = new ImageIcon(getClass().getResource("/Imagenes/005.png"));
+		fondo2.setIcon(fond);
+				
+		vol.setBounds(251, 267, 120, 30);
+		ActionListener volve = new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				frame2.setVisible(false);
+				GestorDeOlimpiadas con = new GestorDeOlimpiadas();
+	        	};
+		};
+		vol.addActionListener(volve);
+		
+		ActionListener conec = new ActionListener() {
+			
+			public void actionPerformed(ActionEvent e) {
+				boolean cont = true;
+				if(usuario.getText().isEmpty() || usuario.getText().isBlank()) {
+                    Alerta usu = new Alerta("error de coneccion, espacios en blanco en el usuario");
+                    cont = false;
+                }
+                if(String.valueOf(contaseña.getPassword()).isEmpty() ||  String.valueOf(contaseña.getPassword()).isBlank()) {
+                    Alerta contra = new Alerta("error de coneccion, espacios en blanco en la contraseña");
+                    cont = false;
+                }           
+                if(cont == true) {
+                    conectarBase();
+	        	}
+			}   
+		};
+		conectar.addActionListener(conec); 
+		conectar.setBounds(120, 267, 120, 30);
+		contaseña.setBounds(251, 155, 190, 30);
+		usuario.setBounds(251, 90, 190, 30);
+		
+		texto1.setEditable(false);
+		texto1.setText("USUARIO DB");
+		texto1.setBounds(93, 90, 83, 30);
+		
+		texto2.setEditable(false);
+		texto2.setText("PASSWORD BD");
+		texto2.setBounds(93, 155, 97, 25);
+		
+		panel2.add(contaseña);
+		panel2.add(texto1);
+		panel2.add(texto2);
+		panel2.add(usuario);
+		panel2.add(vol);
+		panel2.add(conectar);
+		panel2.add(fondo2);
+		
+		contenedor2.add(panel2);
+		frame2.setVisible(true);
+		
+	}
+	
+	public void conectarBase() {
+		try {
+			manager = new DAOManagerJDBC(usuario.getText() ,String.valueOf(contaseña.getPassword()));
+			Alerta contrasene = new Alerta("se conecto con exito");
+		} catch (SQLException e) {
+			Alerta error = new Alerta("error al conectar a la base de datos");
+		}
+		System.out.println(manager);
+	}
+	
+	public static void main(String[] args) {
+		Configuracion app2 = new Configuracion();
+	}
+}
