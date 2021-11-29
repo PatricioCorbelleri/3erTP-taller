@@ -1,0 +1,266 @@
+package Graficos;
+
+import static Graficos.Configuracion.manager;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.beans.PropertyChangeListener;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.PrintWriter;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.io.*;
+import javax.swing.*;
+import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableCellRenderer;
+import javax.swing.table.TableModel;
+import DAO.DAOException;
+import DAO.Deportista;
+import DAOMYSQL.DAOManagerJDBC;
+
+public class DeportistaFrame extends JFrame {
+
+	private JFrame frame3 = new JFrame("Gestor de Olimpiadas - DEPORTISTAS");
+	private JPanel panel3 = new JPanel();
+	private JButton bot1 = new JButton("+ NUEVO");
+	private JButton bot2 = new JButton("EXPORTAR CSV");
+	private JButton bot3 = new JButton("VOLVER");
+	private JTable tabla = new JTable();
+	private String[] titulo2 = { "Nombre y Apellido", "Pais", "Deporte", "Modificar", "Eliminar"};
+	private Object[][] datos;
+	private JLabel title3 = new JLabel("Deportistas");
+	LinkedList<Deportista> deportistas = new LinkedList<>();
+	
+	private Action editar = new Action() {
+		public void actionPerformed(ActionEvent e) {
+			 try {
+                 Statement st = DAOManagerJDBC.getConnection().createStatement();
+                 JTable table = (JTable)e.getSource();
+                 int row = table.getSelectedRow();
+                 manager.getDeportistaDAO().actualizacion(table.getValueAt(row, 0).toString(),table.getValueAt(row, 2).toString());
+             } catch (SQLException | DAOException e1) {
+                 e1.printStackTrace();
+             }
+             };
+
+		public Object getValue(String key) {
+			return null;
+		}
+
+		public void putValue(String key, Object value) {			
+		}
+		
+		public void setEnabled(boolean b) {			
+		}
+
+		public boolean isEnabled() {
+			return false;
+		}
+
+		public void addPropertyChangeListener(PropertyChangeListener listener) {			
+		}
+
+		public void removePropertyChangeListener(PropertyChangeListener listener) {			
+		}
+	};
+	
+	private Action eliminar = new Action() {
+		public void actionPerformed(ActionEvent e) {
+			try {
+                Statement st = DAOManagerJDBC.getConnection().createStatement();
+                Deportista d = new Deportista();
+                JTable table = (JTable)e.getSource();
+                int row = table.getSelectedRow();
+                manager.getDeportistaDAO().eliminar(table.getValueAt(row, 0).toString(),table.getValueAt(row, 1).toString());
+            } catch (SQLException | DAOException e1) {
+                e1.printStackTrace();
+            }
+		   };
+
+		public Object getValue(String key) {
+			return null;
+		}
+
+		public void putValue(String key, Object value) {
+		}
+
+		public void setEnabled(boolean b) {		
+		}
+
+		public boolean isEnabled() {
+			return false;
+		}
+
+		public void addPropertyChangeListener(PropertyChangeListener listener) {	
+		}
+
+		public void removePropertyChangeListener(PropertyChangeListener listener) {		
+		}
+	};
+	private static JButton boton;
+	
+	public String guardarArchivoDestino() {
+		JFileChooser fileChooser = new JFileChooser();
+		String back = "";
+		try {
+			if(fileChooser.showSaveDialog(null) == JFileChooser.APPROVE_OPTION) {
+				back = fileChooser.getSelectedFile().getAbsolutePath();
+			}
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+		}
+	    return back;
+	}
+	
+	public void guardarArchivo( Object[][] tabla) {			
+		try{
+			FileWriter csvWriter = new FileWriter(guardarArchivoDestino()+".csv");			
+			csvWriter.append("Nombre y Apellido");
+			csvWriter.append(",");
+			csvWriter.append("Pais");
+			csvWriter.append(",");
+			csvWriter.append("Disciplina");
+			csvWriter.append('\n');
+			
+			for (Object[] vec : tabla) {
+			csvWriter.append(vec[0].toString());
+			csvWriter.append(",");
+			csvWriter.append(vec[1].toString());
+			csvWriter.append(",");
+			csvWriter.append(vec[2].toString());
+			csvWriter.append('\n');
+			}
+			csvWriter.close();	
+		}		
+		catch(Exception ex){
+			ex.printStackTrace();
+		}
+	}
+	
+	public static boolean exportToCSV(JTable tableToExport,
+	        String pathToExportTo) {
+	    try {
+	        TableModel model = tableToExport.getModel();
+	        FileWriter csv = new FileWriter(new File(pathToExportTo));
+	        for (int i = 0; i < model.getColumnCount(); i++) {
+	            csv.write(model.getColumnName(i) + ",");
+	        }
+	        csv.write("\n");
+	        for (int i = 0; i < model.getRowCount(); i++) {
+	            for (int j = 0; j < model.getColumnCount(); j++) {
+	                csv.write(model.getValueAt(i, j).toString() + ",");
+	            }
+	            csv.write("\n");
+	        }
+	        csv.close();
+	        return true;
+	    } catch (IOException e) {
+	        e.printStackTrace();
+	    }
+	    return false;
+	}
+	
+	public Component getTableCellRendererComponent (JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+		JButton boton = new JButton();
+		boton.setText(value.toString());
+		return boton;
+	}
+	
+	DeportistaFrame() {
+		
+		frame3.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		Container contenedor3 = frame3.getContentPane();
+		contenedor3.setLayout(new BorderLayout(600,600));
+		
+		frame3.setBounds(300, 150, 700, 450);
+		frame3.setSize(650,400);
+		panel3.setSize(600, 600);
+		panel3.setBounds(0, 0, 500, 500);
+		panel3.setLayout(null);
+		bot1.setBounds(100, 51, 120, 30);
+		bot2.setBounds(230, 51, 150, 30);
+		bot3.setBounds(390, 51, 120, 30);
+		
+		title3.setBounds(300,80,100,100);
+				
+		ActionListener back = new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				frame3.setVisible(false);
+				GestorDeOlimpiadas con = new GestorDeOlimpiadas();
+	        	};
+		};
+		
+		bot3.addActionListener(back);
+		
+		ActionListener depo = new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				frame3.setVisible(false);
+				NuevoDeportista con = new NuevoDeportista();
+	        	};
+		};
+		
+		bot1.addActionListener(depo);
+		
+		ActionListener expo = new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+					guardarArchivo(datos);		
+	        };			
+		};
+		bot2.addActionListener(expo);
+		
+		DefaultTableModel modelo = new DefaultTableModel();
+        modelo.addColumn("Nombre y apellido");
+        modelo.addColumn("Pais");
+        modelo.addColumn("Disiplina");
+        modelo.addColumn("editar");
+        modelo.addColumn("eliminar");
+
+        tabla.setModel(modelo);
+
+        try {
+            Statement st = DAOManagerJDBC.getConnection().createStatement();
+            tabla.setModel(modelo);
+            String SQL= "SELECT * FROM deportista";
+            ResultSet rs =   st.executeQuery(SQL);
+            tabla.setModel(modelo);
+            while(rs.next()) {
+            	Object[] v = {rs.getString(3)+ " " +rs.getString(2), manager.buscarNombre(rs.getInt(6)), manager.buscarOtroNombre(rs.getInt(1)) , editar , eliminar}; // TABLA DE DEPORTISTA
+            	modelo.addRow(v);
+            }
+        } catch(SQLException e) {
+        }
+        
+        tabla.setBounds(25,150,600,400);
+        tabla.getTableHeader().setReorderingAllowed(false);
+        tabla.setTableHeader(null);
+        
+        ButtonColumn boton3 = new ButtonColumn(tabla,editar,3);
+		ButtonColumn boton2 = new ButtonColumn(tabla,eliminar,4);
+      
+		panel3.add(bot1);
+		panel3.add(bot2);
+		panel3.add(bot3);
+		panel3.add(title3);
+		panel3.add(tabla);
+		
+		contenedor3.add(panel3);
+		frame3.setVisible(true);			
+			
+	}
+
+	public static void main(String[] args) {
+		DeportistaFrame app3 = new DeportistaFrame();
+	}
+	}
