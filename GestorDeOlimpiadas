@@ -1,0 +1,112 @@
+package Graficos;
+
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+
+public class GestorDeOlimpiadas extends JFrame {
+	
+	private JFrame frame1 = new JFrame("Gestor de Olimpiadas");
+	private JPanel panel1 = new JPanel();
+	private JButton opciones = new JButton();
+	private JButton boton11 = new JButton("DEPORTISTA");
+	private JButton boton21 = new JButton("PAIS");
+	private JButton boton31 = new JButton("DISCIPLINA");
+	
+	private JButton boton12 = new JButton("SIN DEFINIR");
+	private JButton boton13 = new JButton("SIN DEFINIR");
+	private JButton boton22 = new JButton("SIN DEFINIR");
+	private JButton boton23 = new JButton("SIN DEFINIR");
+	private JButton boton32 = new JButton("SIN DEFINIR");
+	private JButton boton33 = new JButton("SIN DEFINIR");
+	private JLabel fondo1 = new JLabel();
+	
+	@SuppressWarnings("deprecation")
+	public GestorDeOlimpiadas() {
+		
+		frame1.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		Container contenedor1 = frame1.getContentPane();
+		contenedor1.setLayout(new BorderLayout(800,800));
+		frame1.setBounds(300, 150, 700, 450);
+		frame1.setSize(650,400);
+		setContentPane(panel1);
+		panel1.setLayout(null);
+		panel1.setSize(500, 500);
+		
+		opciones.setBounds(570,30,50,50);
+		ImageIcon imagen = new ImageIcon(getClass().getResource("/Imagenes/50x50.png"));
+		opciones.setIcon(imagen);
+		
+		fondo1.setBounds(0, 0, 650, 400);
+		ImageIcon fond = new ImageIcon(getClass().getResource("/Imagenes/dos.jpg"));
+		fondo1.setIcon(fond);
+		
+		ActionListener cambiar = new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				frame1.setVisible(false);
+	            Configuracion con = new Configuracion();
+	        	};
+		};
+		
+		opciones.addActionListener(cambiar);
+		
+		ActionListener pais = new ActionListener() {
+		public void actionPerformed(ActionEvent e) {
+			frame1.setVisible(false);
+            PaisFrame F = new PaisFrame();
+        };
+		};
+		
+		boton21.addActionListener(pais);
+		
+		ActionListener disi = new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				frame1.setVisible(false);
+				DeportistaFrame con = new DeportistaFrame();
+	        	};
+		};
+		
+		boton11.addActionListener(disi);
+		
+		boton11.setBounds(50, 50, 120, 60);
+		boton11.setVisible(true);
+		panel1.add(boton11);
+		
+		boton12.setBounds(50, 150, 120, 60);
+		boton13.setBounds(50, 240, 120, 60);
+		
+		boton21.setBounds(245, 50, 120, 60);
+		boton21.setVisible(true);
+		panel1.add(boton21);
+		
+		boton22.setBounds(245, 150, 120, 60);
+		boton23.setBounds(245, 240, 120, 60);
+		
+		boton31.setBounds(440, 50, 120, 60);
+		boton31.setVisible(true);
+		panel1.add(boton31);
+		
+		boton32.setBounds(440, 150, 120, 60);
+		boton33.setBounds(440, 240, 120, 60);
+		
+		panel1.add(boton12);
+		panel1.add(boton13);
+		panel1.add(boton22);
+		panel1.add(boton23);
+		panel1.add(boton32);
+		panel1.add(boton33);
+		panel1.add(opciones);
+		panel1.add(fondo1);
+		
+		contenedor1.add(panel1);
+		frame1.setVisible(true);
+		
+	}
+	
+	public static void main(String[] args) {
+		GestorDeOlimpiadas app1 = new GestorDeOlimpiadas();
+	}
+	
+}
