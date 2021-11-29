@@ -1,0 +1,109 @@
+package Graficos;
+
+import static Graficos.Configuracion.manager;
+
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import javax.swing.*;
+import DAO.DAOException;
+import DAO.Deportista;
+import DAO.Pais;
+
+public class NuevoPais extends JFrame{
+	
+	private JFrame frame6 = new JFrame("Gestor de Olimpiadas - NUEVO PAIS");
+	private JPanel panel6 = new JPanel();
+	private JFormattedTextField nombre = new JFormattedTextField("NOMBRE:");
+	private JButton guardar = new JButton("GUARDAR");
+	private JButton volver = new JButton("VOLVER");
+	private JFormattedTextField texto1 = new JFormattedTextField();
+	private JLabel fondo6 = new JLabel();
+	private Pais p = new Pais();
+	
+	NuevoPais(){
+		
+		frame6.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		Container contenedor6 = frame6.getContentPane();
+		contenedor6.setLayout(new BorderLayout(600,600));
+		frame6.setBounds(15, 15, 700, 450);
+		frame6.setSize(500,500);
+		setContentPane(panel6);
+		panel6.setLayout(null);
+		panel6.setSize(500, 500);
+		
+		fondo6.setBounds(0, 0, 500, 500);
+		ImageIcon fond = new ImageIcon(getClass().getResource("/Imagenes/004.png"));
+		fondo6.setIcon(fond);
+		
+		texto1.setBounds(220, 200, 210, 20);
+		nombre.setBounds(110, 200, 80, 20);
+		nombre.setEditable(false);
+		guardar.setBounds(110, 360, 120, 30);
+		volver.setBounds(250, 360, 120, 30);
+		
+		ActionListener volvi = new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				frame6.setVisible(false);
+				PaisFrame con = new PaisFrame();
+	        	};
+		};
+		
+		volver.addActionListener(volvi);
+		
+		ActionListener save = new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                boolean cont = true;
+                p = new Pais();
+                p.setNombrePais(texto1.getText());
+                if(!soloLetra(p.getNombrePais())) {
+                    Alerta nombre = new Alerta("Solo debe contener letras");
+                    cont = false;
+                }
+                if(p.getNombrePais().isEmpty() || p.getNombrePais().isBlank()) {
+                    Alerta nombre = new Alerta("Campo Obligatorio, Ingrese el nombre del Pais");
+                    cont = false;
+                }
+                if(cont == true) {
+                    guardarActionPerformed(e);
+                }
+            }
+        };
+	        	
+		guardar.addActionListener(save);
+		
+		panel6.add(texto1);
+		panel6.add(nombre);
+		panel6.add(guardar);
+		panel6.add(volver);
+		panel6.add(fondo6);
+		
+		contenedor6.add(panel6, BorderLayout.CENTER);
+		frame6.setVisible(true);
+	}	
+	
+	public void guardarActionPerformed(ActionEvent e){
+		try {	
+			 Pais p = new Pais();
+			 p.setNombrePais(texto1.getText());
+			 manager.getPaisDAO().insertar(p);
+		} catch (DAOException e1) {
+			System.out.println("No se pudo ingresar el deportista");
+			e1.printStackTrace();
+		}
+	}
+	
+	public static boolean soloLetra(String cadena) {
+        for (int i = 0; i < cadena.length(); i++) {
+            char c = cadena.charAt(i);
+            if (!((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c == ' ')) {
+                return false;
+            }
+        }
+        return true;
+    }
+	
+	public static void main(String[] args) {
+		NuevoPais app6 = new NuevoPais();
+	}
+}
